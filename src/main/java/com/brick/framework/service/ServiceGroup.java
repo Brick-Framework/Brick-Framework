@@ -85,7 +85,6 @@ public class ServiceGroup extends Service{
 				} catch (ServiceValidationFailure | IllegalAccessException | InvocationTargetException
 						| InvalidValidatorId | ParameterMismatch | InvalidParams | InvalidServiceId
 						| ParallelServiceResponseMappingFound e) {
-					// TODO Auto-generated catch block
 					Logger.logException(e);
 					throw new RuntimeException(e);
 				}

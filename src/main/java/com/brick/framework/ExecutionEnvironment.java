@@ -10,7 +10,7 @@ import com.brick.framework.exception.InvalidParams;
 import com.brick.framework.exception.InvalidServiceId;
 import com.brick.framework.exception.InvalidValidatorId;
 import com.brick.logger.Logger;
-import com.brick.utilities.BrickRequestBody;
+import com.brick.utilities.BrickRequestData;
 
 import jakarta.servlet.http.Cookie;
 import tools.jackson.databind.JsonNode;
@@ -30,13 +30,13 @@ public class ExecutionEnvironment {
 	private static final String RESPONSE = "response";
 	
 	private AnnotationProcessor annotationProcessor;
-	private BrickRequestBody brickRequestBody;
+	private BrickRequestData brickRequestData;
 	private Map<String,JsonNode> serviceResponseMap; // Responses from services are stored here with executionId as key
 	private ObjectMapper objectMapper;
 	
-	public ExecutionEnvironment(AnnotationProcessor annotationProcessor,BrickRequestBody brickRequestBody) {
+	public ExecutionEnvironment(AnnotationProcessor annotationProcessor,BrickRequestData brickRequestData) {
 		this.annotationProcessor = annotationProcessor;
-		this.brickRequestBody = brickRequestBody;
+		this.brickRequestData = brickRequestData;
 		this.serviceResponseMap = new HashMap<String, JsonNode>();
 		this.objectMapper = new ObjectMapper();
 	}
@@ -72,7 +72,7 @@ public class ExecutionEnvironment {
 			
 			// Request Body
 			if( BODY.equals(paramNameParts[1]) ) {
-				JsonNode currentNode = brickRequestBody.getRequestBody();
+				JsonNode currentNode = brickRequestData.getRequestBody();
 				
 				int i = 2;
 				while( i < paramNameParts.length && null != currentNode && !currentNode.isMissingNode() ) {
@@ -84,24 +84,24 @@ public class ExecutionEnvironment {
 				
 			}else if( HEADER.equals(paramNameParts[1]) ) {
 				ObjectNode node = this.objectMapper.createObjectNode();
-				node.put(paramNameParts[2], brickRequestBody.getHeaders().get(paramNameParts[2]));
+				node.put(paramNameParts[2], brickRequestData.getHeaders().get(paramNameParts[2]));
 				return node;
 			}else if( QUERY.equals(paramNameParts[1]) ) {
 				ObjectNode node = this.objectMapper.createObjectNode();
 				ArrayNode arrayNode = node.putArray(paramNameParts[2]);
 				
-				for( String queryVal : brickRequestBody.getQueryParams().get(paramNameParts[2]) ) {
+				for( String queryVal : brickRequestData.getQueryParams().get(paramNameParts[2]) ) {
 					arrayNode.add(queryVal);
 				}
 				return node;
 			}else if( PATH.equals(paramNameParts[1]) ) {
 				ObjectNode node = this.objectMapper.createObjectNode();
-				node.put(paramNameParts[2], brickRequestBody.getPathVariables().get(paramNameParts[2]) );
+				node.put(paramNameParts[2], brickRequestData.getPathVariables().get(paramNameParts[2]) );
 				return node;
 			}else if( COOKIE.equals(paramNameParts[1]) ) {
 				ObjectNode node = new ObjectMapper().createObjectNode();
 				
-				for( Cookie c: brickRequestBody.getCookies() ) {
+				for( Cookie c: brickRequestData.getCookies() ) {
 					if( c.getName().equals(paramNameParts[2]) ) {
 						node.put(paramNameParts[2], c.getValue());
 						break;

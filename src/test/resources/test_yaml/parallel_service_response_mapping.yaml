@@ -1,0 +1,9 @@
+execution-type: parallel
+service-list:
+  - serviceId: Test Method 2
+    executionId: tm2
+    params: []
+  - serviceId: Test Method 3
+    executionId: tm3
+    params: 
+      - tm2.response

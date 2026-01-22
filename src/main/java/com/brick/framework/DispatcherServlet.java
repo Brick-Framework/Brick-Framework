@@ -1,12 +1,5 @@
 package com.brick.framework;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -47,9 +40,16 @@ import com.brick.openapi.elements.path.Path;
 import com.brick.openapi.elements.path.http.methods.HttpMethod;
 import com.brick.openapi.exception.InvalidOpenAPISpecification;
 import com.brick.openapi.exception.InvalidValue;
-import com.brick.utilities.BrickRequestBody;
+import com.brick.utilities.BrickRequestData;
 import com.brick.utilities.exception.InvalidData;
 import com.brick.utilities.exception.KeyNotFound;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class DispatcherServlet extends HttpServlet {
 	 
@@ -138,7 +138,7 @@ class DispatcherServlet extends HttpServlet {
 
 		HttpMethod method = path.getMethod(request.getMethod());
 		Map<String,String> pathVariables = path.getPathVariables(requestURI);
-		JsonNode requestBodyJson = BrickRequestBody.getRequestBody(request);
+		JsonNode requestBodyJson = BrickRequestData.getRequestBody(request);
 		
 		Map<String,String> headers = new HashMap<String, String>();
 		Enumeration<String> headerKeys = request.getHeaderNames();
@@ -147,9 +147,9 @@ class DispatcherServlet extends HttpServlet {
 			headers.put(currentKey, request.getHeader(currentKey) );
 		}
 		
-		BrickRequestBody brickRequestBody = new BrickRequestBody(requestBodyJson, pathVariables, headers, Arrays.asList( request.getCookies() ), request.getParameterMap());
+		BrickRequestData brickRequestData = new BrickRequestData(requestBodyJson, pathVariables, headers, Arrays.asList( request.getCookies() ), request.getParameterMap());
 		
-		if( !method.validateRequest( brickRequestBody ) ) { // Checking if Request Data is According to OpenAPI Specification
+		if( !method.validateRequest( brickRequestData ) ) { // Checking if Request Data is According to OpenAPI Specification
 			BadRequest badRequest = new BadRequest();
 			Logger.logException(badRequest);
 			throw badRequest;
@@ -171,7 +171,7 @@ class DispatcherServlet extends HttpServlet {
 		}
 		
 		//Service Execution
-		ExecutionEnvironment env = new ExecutionEnvironment(this.annotationProcessor,brickRequestBody);
+		ExecutionEnvironment env = new ExecutionEnvironment(this.annotationProcessor,brickRequestData);
 		Logger.info("Execution Environment Created, Starting Service Execution");
 		controllerMethod.executeServices(env);
 		JsonNode serviceResponse = env.getResponse(controllerMethod.getResponseList());		

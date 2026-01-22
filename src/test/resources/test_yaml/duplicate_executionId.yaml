@@ -1,0 +1,28 @@
+/process:
+  post:
+    services:
+      - serviceId: Test Method 1
+        executionId: abc
+        validator:
+          - validatorId: Validator Method 1
+            responseType: visible
+            params:
+              - request.body.value
+            message: Validation failed
+        params:
+          - request.body.value
+
+      - service-group:
+          execution-type: parallel
+          service-list:
+            - serviceId: Test Method 2
+              executionId: duplicate-executionId
+              params: []
+            - serviceId: Test Method 3
+              executionId: duplicate-executionId
+              params: []
+
+    response:
+      - key: message
+        value: abc.response
+      - tm2.response

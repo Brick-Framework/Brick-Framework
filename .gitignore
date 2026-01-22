@@ -32,3 +32,6 @@ build/
 
 ### Draw.io Backup Files ###
 *.bkp
+
+### Log Files ###
+log-file/*

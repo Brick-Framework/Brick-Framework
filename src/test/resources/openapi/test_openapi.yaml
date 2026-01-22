@@ -1,0 +1,218 @@
+openapi: 3.0.4
+info:
+  title: Random Api Title
+  description: API Definition Test
+  termsOfService : https://randomurl.com/terms-of-service
+  version: 0.0.1
+  contact: {}
+servers:
+  - url: https://randomurl.com/development/
+    description: Development Server
+  - url: https://randomurl.com:{port}/production/{version}
+    description: Production Server
+    variables:
+      version:
+        default: v1
+        description: Value of Version
+      port:
+        enum:
+          - "8080"
+          - "443"
+        default: "8080"
+        description: Port of Server
+tags:
+  - name: Category
+    description: Categories Related Operations
+  - name: Order
+    description: Description Related Operations
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+paths:
+  /categories:
+    get:
+      tags:
+        - Category
+      summary: List of All Categories
+      description: Returns a list of all categories
+      security:
+        - BasicAuth: []
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 500
+          example: 101
+      responses:
+        '200':
+          description: A List of Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    categoryId:
+                      type: integer
+                    name:
+                      type: string
+  /categories/{categoryId}:
+    get:
+      tags:
+        - Category
+      summary: List of All Categories
+      description: Returns a list of all categories
+      parameters:
+        - $ref: "#/components/parameters/categoryIdQueryParam"
+      responses:
+        '200':
+          description: A List of Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categoryId:
+                    type: integer
+                  name:
+                    type: string
+  /orders:
+    post:
+      tags:
+        - Order
+      summary: Create Order
+      description: Post order details to server for processing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/productSchema"
+                address:
+                  $ref: "#/components/schemas/addressSchema"
+      responses:
+        '201' :
+          description: Order Created Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+    put:
+      tags:
+        - Order
+      summary: Update Order
+      description: Update order details to server for processing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: integer
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/productSchema"
+                address:
+                  $ref: "#/components/schemas/addressSchema"
+      responses:
+        '200':
+          description: Order Details Updated Successfully
+    delete:
+      tags:
+        - Order
+      summary: Delete Order
+      description: Delete order details to server for processing
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Order Details Cancelled Successfully
+components:
+  parameters:
+    categoryIdQueryParam:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 5
+      example: abcd
+  schemas:
+    addressSchema:
+      type: object
+      properties:
+        addressLine:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipcode:
+          type: string
+      required:
+        - addressLine
+        - city
+    productSchema:
+      type: object
+      nullable: true
+      properties:
+        productId:
+          type: integer
+          nullable: false
+        name:
+          type: string
+        price:
+          type: number
+        categoryName:
+          type: string
+        quantity:
+          type: integer
+    testBaseSchema1:
+      type: object
+      properties:
+        property1:
+          type: integer
+        property2:
+          type: string
+    testBaseSchema2:
+      type: object
+      properties:
+        property3:
+          type: integer
+        property4:
+          type: string
+    testChildSchema:
+      allOf:
+        - $ref: "#/components/schemas/testBaseSchema1"
+        - $ref: "#/components/schemas/testBaseSchema2"
+      type: object
+      properties:
+        property5:
+          type: integer
+        property6:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

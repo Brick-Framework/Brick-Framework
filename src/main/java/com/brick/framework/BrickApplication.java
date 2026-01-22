@@ -119,7 +119,6 @@ public class BrickApplication {
 			  @Override
 			    public void run() {
 					// Server Waiting for Connections
-					tomcat.getServer().await();
 					Logger.info("Tomcat started");
 					tomcat.getServer().await(); 
 			  }

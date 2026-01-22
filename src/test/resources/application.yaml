@@ -1,0 +1,6 @@
+logger:
+   clear: true
+   all:
+      file: log-file/all-logs.log
+server:
+   port: 8080
