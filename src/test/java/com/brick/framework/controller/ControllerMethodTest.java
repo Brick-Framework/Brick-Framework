@@ -54,10 +54,10 @@ public class ControllerMethodTest {
     	
     	List<Response> responseList = method.getResponseList();
     	
-    	assertEquals("message",responseList.getFirst().getKey());
-    	assertEquals("abc.response",responseList.getFirst().getValue());
-    	assertEquals("tm2",responseList.getLast().getKey());
-    	assertEquals("tm2.response",responseList.getLast().getValue());
+    	assertEquals("message",responseList.get(0).getKey());
+    	assertEquals("abc.response",responseList.get(0).getValue());
+    	assertEquals("tm2",responseList.get(1).getKey());
+    	assertEquals("tm2.response",responseList.get(1).getValue());
 	}
 	
 	@Test
