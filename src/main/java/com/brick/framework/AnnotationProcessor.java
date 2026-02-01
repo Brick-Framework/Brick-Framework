@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -179,9 +180,7 @@ public class AnnotationProcessor {
 			Constructor<?> constructor = constructorList[0];
 			
 			List<Class<?>> dependency = new ArrayList<Class<?>>();
-			for( Class<?> param: constructor.getParameterTypes() ) {
-				dependency.add(param);
-			}
+			dependency.addAll( Arrays.asList( constructor.getParameterTypes() ) );
 			
 			graph.put(c, dependency );
 		}

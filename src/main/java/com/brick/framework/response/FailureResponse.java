@@ -2,8 +2,6 @@ package com.brick.framework.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @JsonIgnoreProperties({
     "depth", "stackTrace", "cause", "suppressed",
     "localizedMessage", "message"

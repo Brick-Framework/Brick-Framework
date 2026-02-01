@@ -101,7 +101,7 @@ class DispatcherServlet extends HttpServlet {
 		String requestURI = request.getRequestURI();	
 		
 		// Check if Content Type is JSON
-		if( null != request.getHeader(BrickConstants.CONTENT_TYPE) && !BrickConstants.VALID_CONTENT_TYPE.contains(request.getHeader(BrickConstants.CONTENT_TYPE)) ) {
+		if( null != request.getHeader(BrickConstants.CONTENT_TYPE) && !BrickConstants.getValidContentType().contains(request.getHeader(BrickConstants.CONTENT_TYPE)) ) {
 			InvalidContentType invalidContentType = new InvalidContentType(request.getHeader(BrickConstants.CONTENT_TYPE));
 			Logger.logException(invalidContentType);
 			throw invalidContentType;

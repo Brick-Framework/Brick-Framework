@@ -22,10 +22,16 @@ public class BrickConstants {
 	public static final String OPENAPI_ROOT_PATH = "/openapi";
 	public static final String CONTROLLER_ROOT_PATH = "/controller";
 	
-	public static final List<String> VALID_OPENAPI_EXTENSION = Arrays.asList("yaml");
 	public static final String VALID_CONTROLLER_EXTENSION = "yaml";
 	
 	public static final String CONTENT_TYPE = "Content-Type"; //Header Key
 	public static final String JSON_DATA = "application/json";
-	public static final List<String> VALID_CONTENT_TYPE = Arrays.asList(BrickConstants.JSON_DATA);
+	
+	public static final List<String> getValidOpenAPIExtension(){
+		return Arrays.asList("yaml");
+	}
+	
+	public static final List<String> getValidContentType() {
+		return Arrays.asList(BrickConstants.JSON_DATA);
+	}
 }

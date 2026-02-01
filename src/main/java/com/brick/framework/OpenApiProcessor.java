@@ -70,7 +70,7 @@ public class OpenApiProcessor {
 
 	private void processControllerFile(Set<String> seenUri, File file)
 			throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound {
-		if( BrickConstants.VALID_OPENAPI_EXTENSION.contains( FileReader.getFileExtension(file.getName())) ) {
+		if( BrickConstants.getValidOpenAPIExtension().contains( FileReader.getFileExtension(file.getName())) ) {
 			OpenAPIFileReader fileReader = OpenApiFileReaderFactory.getReader(file);
 			OpenAPI openApi = fileReader.getOpenAPI();
 			

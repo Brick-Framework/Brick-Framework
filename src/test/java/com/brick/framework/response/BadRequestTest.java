@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 public class BadRequestTest {
 	@Test
 	public void success() {
-		String message  = "responseMessage";
 		BadRequest badRequest = new BadRequest();
 		badRequest.setUri("uri");
 		badRequest.setMethod("method");

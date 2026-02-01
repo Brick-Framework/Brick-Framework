@@ -69,7 +69,7 @@ public class Validator {
 		Method validationMethod = env.getValidatorMethod(this.validatorId);
 		Object validatorObject = env.getAutoInitializedObject( validationMethod.getDeclaringClass() );
 		
-		Object parameters[] = new Object[validationMethod.getParameterCount()];
+		Object[] parameters = new Object[validationMethod.getParameterCount()];
 		
 		if( this.params.size() != parameters.length ) {
 			ParameterMismatch parameterMismatch = new ParameterMismatch(parameters.length, this.params.size(), this.validatorId);
