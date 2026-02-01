@@ -43,7 +43,7 @@ public class OpenApiProcessor {
             throw exception;
         }
 		
-		processOpenApiFiles(rootDirectory);
+		processOpenApiDirectory(rootDirectory);
 		
 		Logger.info("Open Api Files Parsing Completed");
 	}
@@ -51,7 +51,7 @@ public class OpenApiProcessor {
 	/*
 	 * Description: Scans the Directory Recursively and Adds Path Object From OpenApi to endpointPathMap
 	 */
-	private void processOpenApiFiles(File directory) throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound {
+	private void processOpenApiDirectory(File directory) throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound {
 		File[] files = directory.listFiles();
 		if( null == files ) {
 			return;
@@ -61,22 +61,27 @@ public class OpenApiProcessor {
 		
 		for( File file : files ) {
 			if( file.isDirectory() ) {
-				processOpenApiFiles(file);
+				processOpenApiDirectory(file);
 			}else {
-				if( BrickConstants.VALID_OPENAPI_EXTENSION.contains( FileReader.getFileExtension(file.getName())) ) {
-					OpenAPIFileReader fileReader = OpenApiFileReaderFactory.getReader(file);
-					OpenAPI openApi = fileReader.getOpenAPI();
-					
-					List<Path> paths = openApi.getPaths();
-					for( Path path: paths ) {
-						
-						if( seenUri.contains(path.getUri()) ) {
-							throw new DuplicateOpenApiSpecificationFound(path.getUri());
-						}
-						this.paths.add(path);
-						seenUri.add(path.getUri());
-					}
+				processControllerFile(seenUri, file);
+			}
+		}
+	}
+
+	private void processControllerFile(Set<String> seenUri, File file)
+			throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound {
+		if( BrickConstants.VALID_OPENAPI_EXTENSION.contains( FileReader.getFileExtension(file.getName())) ) {
+			OpenAPIFileReader fileReader = OpenApiFileReaderFactory.getReader(file);
+			OpenAPI openApi = fileReader.getOpenAPI();
+			
+			List<Path> paths = openApi.getPaths();
+			for( Path path: paths ) {
+				
+				if( seenUri.contains(path.getUri()) ) {
+					throw new DuplicateOpenApiSpecificationFound(path.getUri());
 				}
+				this.paths.add(path);
+				seenUri.add(path.getUri());
 			}
 		}
 	}

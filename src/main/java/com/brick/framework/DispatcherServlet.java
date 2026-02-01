@@ -54,9 +54,9 @@ import tools.jackson.databind.ObjectMapper;
 class DispatcherServlet extends HttpServlet {
 	 
 	private ObjectMapper mapper;
-	private AnnotationProcessor annotationProcessor;
-	private OpenApiProcessor openApiProcessor;
-	private ControllerProcessor controllerProcessor;
+	private transient AnnotationProcessor annotationProcessor;
+	private transient OpenApiProcessor openApiProcessor;
+	private transient ControllerProcessor controllerProcessor;
 		
 	public DispatcherServlet(String basePackage) throws InvalidData, InvalidOpenAPISpecification, URISyntaxException, DuplicateOpenApiSpecificationFound, IOException, ClassNotFoundException, DuplicateValidatorIdFound, DuplicateServiceIdFound, InvalidValidatorSigantature, DuplicateServiceFound, DuplicateValidatorFound, MultiplePublicConstructorFound, NoPublicConstructorFound, CyclicAutoInitilizationReferenceFound, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, MultipleControllerDefinitionFound, KeyNotFound, InvalidValue, ExecutionIdNotUnique, ParallelServiceResponseMappingFound {
 		this.mapper = new ObjectMapper();

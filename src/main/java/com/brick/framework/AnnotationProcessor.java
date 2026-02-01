@@ -57,6 +57,20 @@ public class AnnotationProcessor {
 		this.createObjects();
 	}
 	
+	private Queue<Class<?>> getClassesWithZeroDependecies(Map<Class<?>, List<Class<?>>> graph ) {
+		Queue<Class<?>> queue = new LinkedList<Class<?>>();
+		
+		
+		// Using an Outdegree to Initialise Classes with Zero Dependency First, then other Initilize Other Classes
+		for( Map.Entry<Class<?>, List<Class<?>>> entry : graph.entrySet() ) {
+			if( entry.getValue().isEmpty() ) {
+				queue.offer( entry.getKey() );
+			}
+		}
+		
+		return queue;
+	}
+	
 	/*
 	 * Description: Create Objects for AutoInitizerMap
 	 */
@@ -65,20 +79,11 @@ public class AnnotationProcessor {
 		Map<Class<?>, List<Class<?>>> graph = this.createGraph();
 		this.cyclicReferenceCheck(graph);
 		
-		Queue<Class<?>> queue = new LinkedList<Class<?>>();
+		Queue<Class<?>> initializationQueue = getClassesWithZeroDependecies(graph);
 		
 		
-		// Creating an Outdegree Map to Initialise Classes with Zero Dependency First, then other Initilize Other Classes
-		Map<Class<?>, Integer> outdegreeMap = new HashMap<Class<?>, Integer>();
-		for( Map.Entry<Class<?>, List<Class<?>>> entry : graph.entrySet() ) {
-			outdegreeMap.put(entry.getKey(), entry.getValue().size());
-			if( entry.getValue().isEmpty() ) {
-				queue.offer( entry.getKey() );
-			}
-		}
-		
-		while( !queue.isEmpty() ) {
-			Class<?> current = queue.poll();
+		while( !initializationQueue.isEmpty() ) {
+			Class<?> current = initializationQueue.poll();
 			
 			Constructor<?> constructor = current.getConstructors()[0];
 			Class<?>[] parameters =  constructor.getParameterTypes();
@@ -101,7 +106,7 @@ public class AnnotationProcessor {
 					entry.getValue().remove(current);
 					
 					if( entry.getValue().isEmpty() ) {
-						queue.offer(entry.getKey());
+						initializationQueue.offer(entry.getKey());
 					}
 				}
 			}
@@ -220,6 +225,75 @@ public class AnnotationProcessor {
 	}
 	
 	/*
+	 * Description Process and Peforms Validation on Classes Annotated with Validator
+	 */
+	private void processValidatorAnnotation(Class<?> clazz, Set<String> seenValidator) throws DuplicateValidatorFound, InvalidValidatorSigantature, DuplicateValidatorIdFound {
+		Validator v = clazz.getAnnotation(Validator.class);
+		
+		if( seenValidator.contains( v.name() ) ) {
+			DuplicateValidatorFound duplicateValidatorFound = new DuplicateValidatorFound( v.name() );
+			Logger.logException(duplicateValidatorFound);
+			throw duplicateValidatorFound;
+		}
+		
+		seenValidator.add(v.name());
+		
+		Method[] methods = clazz.getMethods();
+		for( Method m : methods ) {
+			if( m.isAnnotationPresent(Identifier.class) ) {
+				Identifier i = m.getAnnotation(Identifier.class);
+				
+				// Checking Return Type
+				if( m.getReturnType() != boolean.class ) {
+					InvalidValidatorSigantature invalidValidatorSigantature = new InvalidValidatorSigantature(i.id(), m.getReturnType() ); 
+					Logger.logException(invalidValidatorSigantature);
+					throw invalidValidatorSigantature;
+				}
+
+				
+				// Checking for Duplicates
+				if( validatorMap.containsKey( i.id() ) ) {
+					DuplicateValidatorIdFound duplicateValidatorIdFound = new DuplicateValidatorIdFound(i.id());
+					Logger.logException(duplicateValidatorIdFound);
+					throw duplicateValidatorIdFound;
+				}
+				validatorMap.put(i.id(), m);
+			}
+		}
+	}
+	
+	/*
+	 * Description Process and Peforms Validation on Classes Annotated with Service
+	 */
+	private void processServiceAnnotation(Class<?> clazz, Set<String> seenService) throws DuplicateServiceFound, DuplicateServiceIdFound {
+		Service s = clazz.getAnnotation(Service.class);
+		
+		if( seenService.contains(s.name()) ) {
+			DuplicateServiceFound duplicateServiceFound = new DuplicateServiceFound(s.name());
+			Logger.logException(duplicateServiceFound);
+			throw duplicateServiceFound;
+		}
+		
+		seenService.add(s.name());
+		
+		Method[] methods = clazz.getMethods();
+		for( Method m : methods ) {
+			if( m.isAnnotationPresent(Identifier.class) ) {
+				Identifier i = m.getAnnotation(Identifier.class);
+				
+				//Checking for Duplicates
+				if( serviceMap.containsKey( i.id() ) ) {
+					DuplicateServiceIdFound duplicateServiceIdFound = new DuplicateServiceIdFound( i.id() );
+					Logger.logException(duplicateServiceIdFound);
+					throw duplicateServiceIdFound;
+				}
+				
+				serviceMap.put(i.id(), m);
+			}
+		}
+	}
+	
+	/*
 	 * Description: Filter Classes and Method based on annotation and get references
 	 */
 	public void filterAndMap() throws DuplicateValidatorFound, InvalidValidatorSigantature, DuplicateValidatorIdFound, DuplicateServiceFound, DuplicateServiceIdFound {
@@ -234,73 +308,14 @@ public class AnnotationProcessor {
         		this.autoInitializerMap.put(clazz,null);
         	}
         	
-        	
         	// Checking for Validator Classes and Adding Validator with their id in map
         	if( AnnotationUtils.isAnnotationPresent(clazz, Validator.class) ) {
-        		
-        		Validator v = clazz.getAnnotation(Validator.class);
-        		
-        		if( seenValidator.contains( v.name() ) ) {
-        			DuplicateValidatorFound duplicateValidatorFound = new DuplicateValidatorFound( v.name() );
-        			Logger.logException(duplicateValidatorFound);
-        			throw duplicateValidatorFound;
-        		}
-        		
-        		seenValidator.add(v.name());
-        		
-        		Method[] methods = clazz.getMethods();
-        		for( Method m : methods ) {
-        			if( m.isAnnotationPresent(Identifier.class) ) {
-        				Identifier i = m.getAnnotation(Identifier.class);
-        				
-        				// Checking Return Type
-        				if( m.getReturnType() != boolean.class ) {
-        					InvalidValidatorSigantature invalidValidatorSigantature = new InvalidValidatorSigantature(i.id(), m.getReturnType() ); 
-        					Logger.logException(invalidValidatorSigantature);
-        					throw invalidValidatorSigantature;
-        				}
-
-        				
-        				// Checking for Duplicates
-        				if( validatorMap.containsKey( i.id() ) ) {
-        					DuplicateValidatorIdFound duplicateValidatorIdFound = new DuplicateValidatorIdFound(i.id());
-        					Logger.logException(duplicateValidatorIdFound);
-        					throw duplicateValidatorIdFound;
-        				}
-        				validatorMap.put(i.id(), m);
-        			}
-        		}
+        		processValidatorAnnotation(clazz, seenValidator);
         	}
         	
         	// Checking for Service Classes and Adding Service with their id in map
         	if( AnnotationUtils.isAnnotationPresent(clazz, Service.class) ) {
-        		
-        		
-        		Service s = clazz.getAnnotation(Service.class);
-        		
-        		if( seenService.contains(s.name()) ) {
-        			DuplicateServiceFound duplicateServiceFound = new DuplicateServiceFound(s.name());
-        			Logger.logException(duplicateServiceFound);
-        			throw duplicateServiceFound;
-        		}
-        		
-        		seenService.add(s.name());
-        		
-        		Method[] methods = clazz.getMethods();
-        		for( Method m : methods ) {
-        			if( m.isAnnotationPresent(Identifier.class) ) {
-        				Identifier i = m.getAnnotation(Identifier.class);
-        				
-        				//Checking for Duplicates
-        				if( serviceMap.containsKey( i.id() ) ) {
-        					DuplicateServiceIdFound duplicateServiceIdFound = new DuplicateServiceIdFound( i.id() );
-        					Logger.logException(duplicateServiceIdFound);
-        					throw duplicateServiceIdFound;
-        				}
-        				
-        				serviceMap.put(i.id(), m);
-        			}
-        		}
+        		processServiceAnnotation(clazz, seenService);
         	}
         }
         

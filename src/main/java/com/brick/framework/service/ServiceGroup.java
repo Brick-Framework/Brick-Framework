@@ -70,45 +70,55 @@ public class ServiceGroup extends Service{
 	}
 
 	@Override
-	public void executeService(ExecutionEnvironment env) {
-		ServiceThreadManager threadManager = ServiceThreadManager.getInstance();
+	public void executeService(ExecutionEnvironment env) throws ServiceValidationFailure, IllegalAccessException, InvocationTargetException, InvalidValidatorId, ParameterMismatch, InvalidParams, InvalidServiceId, ParallelServiceResponseMappingFound {
 		
-		Logger.info("Starting Parallel Exeuction of Services");
-		
-		List<Future<?>> futures = new ArrayList<>();
-
-        // 1. Submit multiple Runnable tasks
-		for( Service s: this.serviceList ) {
-			Runnable serviceRunnable = () ->{
-				try {
-					s.executeService(env);
-				} catch (ServiceValidationFailure | IllegalAccessException | InvocationTargetException
-						| InvalidValidatorId | ParameterMismatch | InvalidParams | InvalidServiceId
-						| ParallelServiceResponseMappingFound e) {
-					Logger.logException(e);
-					throw new RuntimeException(e);
-				}
-			};
-			futures.add(threadManager.submitTask(serviceRunnable));
+		if( ExecutionType.SERIAL == type ) {
+			Logger.info("Starting Serial Exeuction of Services");
+			for( Service s: this.serviceList ) {
+				s.executeService(env);
+			}
+			
+			Logger.info("Serial Execution of Services Completed");
+		}else if( ExecutionType.PARALLEL == type ) {
+			ServiceThreadManager threadManager = ServiceThreadManager.getInstance();
+			
+			Logger.info("Starting Parallel Exeuction of Services");
+			
+			List<Future<?>> futures = new ArrayList<>();
+	
+	        // 1. Submit multiple Runnable tasks
+			for( Service s: this.serviceList ) {
+				Runnable serviceRunnable = () ->{
+					try {
+						s.executeService(env);
+					} catch (ServiceValidationFailure | IllegalAccessException | InvocationTargetException
+							| InvalidValidatorId | ParameterMismatch | InvalidParams | InvalidServiceId
+							| ParallelServiceResponseMappingFound e) {
+						Logger.logException(e);
+						throw new RuntimeException(e);
+					}
+				};
+				futures.add(threadManager.submitTask(serviceRunnable));
+			}
+	
+	        // 2. Wait for all tasks to complete and handle exceptions
+	
+	        for (Future<?> future : futures) {
+	            try {
+	                // Blocks until the task completes or throws an exception
+	                future.get();
+	            } catch (ExecutionException e) {
+	                // The task threw an exception (e.g., RuntimeException from Task 3)
+	            	Logger.logException(e);
+	                Logger.error("Task failed! Cause: " + e.getCause().getMessage());
+	            } catch (InterruptedException e) {
+	            	Logger.logException(e);
+	                Thread.currentThread().interrupt();
+	            }
+	        }
+	        
+	        Logger.info("Parallel Execution of Services Completed");
 		}
-
-        // 2. Wait for all tasks to complete and handle exceptions
-
-        for (Future<?> future : futures) {
-            try {
-                // Blocks until the task completes or throws an exception
-                future.get();
-            } catch (ExecutionException e) {
-                // The task threw an exception (e.g., RuntimeException from Task 3)
-            	Logger.logException(e);
-                Logger.error("Task failed! Cause: " + e.getCause().getMessage());
-            } catch (InterruptedException e) {
-            	Logger.logException(e);
-                Thread.currentThread().interrupt();
-            }
-        }
-        
-        Logger.info("Parallel Execution of Services Completed");
 	}
 
 	@Override

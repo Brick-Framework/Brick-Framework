@@ -20,6 +20,7 @@ import com.brick.framework.exception.InvalidValidatorId;
 import com.brick.framework.exception.ParallelServiceResponseMappingFound;
 import com.brick.framework.exception.ParameterMismatch;
 import com.brick.framework.response.ServiceValidationFailure;
+import com.brick.logger.Logger;
 import com.brick.openapi.exception.InvalidValue;
 import com.brick.utilities.BrickMap;
 import com.brick.utilities.exception.InvalidData;
@@ -67,6 +68,6 @@ class TestClass {
 	}
 	
 	public void service() {
-		
+		Logger.info("Inside Service");
 	}
 }
