@@ -7,17 +7,17 @@ public enum ExecutionType {
 	SERIAL("serial"),
 	PARALLEL("parallel");
 	
-	private final String executionType;
+	private final String serviceExecutionType;
 
 
 	ExecutionType(String executionType) {
-        this.executionType = executionType;
+        this.serviceExecutionType = executionType;
     }
 
     public static ExecutionType fromString(String value) throws InvalidValue {
         
         for (ExecutionType pt : values()) {
-            if (pt.executionType.equalsIgnoreCase(value)) {
+            if (pt.serviceExecutionType.equalsIgnoreCase(value)) {
                 return pt;
             }
         }

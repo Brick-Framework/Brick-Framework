@@ -2,8 +2,6 @@ package com.brick.framework.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @JsonIgnoreProperties({
     "depth", "stackTrace", "cause", "suppressed",
     "localizedMessage", "message"
@@ -14,7 +12,7 @@ public abstract class FailureResponse extends Exception {
 	private String method;
 	protected String errorMessage;
 	
-	public FailureResponse(String message) {
+	protected FailureResponse(String message) {
 		super(message);
 	}
 

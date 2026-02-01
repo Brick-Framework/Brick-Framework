@@ -53,10 +53,10 @@ import tools.jackson.databind.ObjectMapper;
 
 class DispatcherServlet extends HttpServlet {
 	 
-	private ObjectMapper mapper;
-	private AnnotationProcessor annotationProcessor;
-	private OpenApiProcessor openApiProcessor;
-	private ControllerProcessor controllerProcessor;
+	private final ObjectMapper mapper;
+	private transient final AnnotationProcessor annotationProcessor;
+	private transient final OpenApiProcessor openApiProcessor;
+	private transient final ControllerProcessor controllerProcessor;
 		
 	public DispatcherServlet(String basePackage) throws InvalidData, InvalidOpenAPISpecification, URISyntaxException, DuplicateOpenApiSpecificationFound, IOException, ClassNotFoundException, DuplicateValidatorIdFound, DuplicateServiceIdFound, InvalidValidatorSigantature, DuplicateServiceFound, DuplicateValidatorFound, MultiplePublicConstructorFound, NoPublicConstructorFound, CyclicAutoInitilizationReferenceFound, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, MultipleControllerDefinitionFound, KeyNotFound, InvalidValue, ExecutionIdNotUnique, ParallelServiceResponseMappingFound {
 		this.mapper = new ObjectMapper();
@@ -101,7 +101,7 @@ class DispatcherServlet extends HttpServlet {
 		String requestURI = request.getRequestURI();	
 		
 		// Check if Content Type is JSON
-		if( null != request.getHeader(BrickConstants.CONTENT_TYPE) && !BrickConstants.VALID_CONTENT_TYPE.contains(request.getHeader(BrickConstants.CONTENT_TYPE)) ) {
+		if( null != request.getHeader(BrickConstants.CONTENT_TYPE) && !BrickConstants.getValidContentType().contains(request.getHeader(BrickConstants.CONTENT_TYPE)) ) {
 			InvalidContentType invalidContentType = new InvalidContentType(request.getHeader(BrickConstants.CONTENT_TYPE));
 			Logger.logException(invalidContentType);
 			throw invalidContentType;

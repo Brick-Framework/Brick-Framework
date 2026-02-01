@@ -7,20 +7,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.brick.framework.utility.ConfigKeys;
-import com.brick.logger.Logger;
 import com.brick.utilities.Config;
 
 public class ServiceThreadManager {
 	
 	private static ServiceThreadManager instance;
 	
-	public static ServiceThreadManager getInstance() {
-		 if (instance == null) {
-            synchronized (ServiceThreadManager.class) {
-                if (instance == null) {
-                    instance = new ServiceThreadManager();
-                }
-            }
+	public static synchronized ServiceThreadManager getInstance() {
+        if (instance == null) {
+            instance = new ServiceThreadManager();
         }
         return instance;
 	}
@@ -43,8 +38,8 @@ public class ServiceThreadManager {
 				);
 	}
 	
-	public Future<?> submitTask(Runnable r) {
-		return this.threadPoolExecutor.submit(r);
+	public Future<Void> submitTask(Runnable r) {
+		return this.threadPoolExecutor.submit(r,null);
 	}
 
 }

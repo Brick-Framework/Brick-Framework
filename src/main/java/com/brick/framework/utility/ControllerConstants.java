@@ -1,6 +1,11 @@
 package com.brick.framework.utility;
 
 public class ControllerConstants {
+	
+	private ControllerConstants() {
+		super();
+	}
+	
 	public static final String VALIDATOR_ID = "validatorId";
 	public static final String PARAMETERS = "params";
 	public static final String VALIDATOR = "validator";

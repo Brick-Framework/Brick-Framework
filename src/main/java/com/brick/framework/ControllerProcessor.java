@@ -47,7 +47,7 @@ public class ControllerProcessor {
             throw exception;
         }
 		
-		processControllerFiles(rootDirectory);
+		processControllerDirectory(rootDirectory);
 		
 		Logger.info("Controller Files Parsing Completed");
 	}
@@ -55,7 +55,7 @@ public class ControllerProcessor {
 	/*
 	 * Description: Scans the Directory Recursively and Adds Controller Object From OpenApi to endpointPathMap
 	 */
-	private void processControllerFiles(File directory) throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound, MultipleControllerDefinitionFound, KeyNotFound, InvalidValue, ExecutionIdNotUnique, ParallelServiceResponseMappingFound {
+	private void processControllerDirectory(File directory) throws InvalidData, FileNotFoundException, InvalidOpenAPISpecification, DuplicateOpenApiSpecificationFound, MultipleControllerDefinitionFound, KeyNotFound, InvalidValue, ExecutionIdNotUnique, ParallelServiceResponseMappingFound {
 		File[] files = directory.listFiles();
 		if( null == files ) {
 			return;
@@ -64,24 +64,30 @@ public class ControllerProcessor {
 		
 		for( File file : files ) {
 			if( file.isDirectory() ) {
-				processControllerFiles(file);
+				processControllerDirectory(file);
 			}else {
 				if( BrickConstants.VALID_CONTROLLER_EXTENSION.equals( FileReader.getFileExtension(file.getName()) ) ) {
-					FileReader fileReader = new YamlFileReader(PATH_PREFIX+file.getName());
-					BrickMap map = fileReader.getMap();
-					
-					for( Map.Entry<String, Object> entry : map ) {
-						if( this.pathToControllerMap.containsKey(entry.getKey()) ) {
-							MultipleControllerDefinitionFound multipleControllerDefinitionFound = new MultipleControllerDefinitionFound(entry.getKey());
-							Logger.logException(multipleControllerDefinitionFound);
-							throw multipleControllerDefinitionFound;
-						}
-						
-						Logger.info("Trying to Create Controller Object From : "+file.getName()+" with path : "+entry.getKey());
-						this.pathToControllerMap.put(entry.getKey(), new Controller( new BrickMap(entry.getValue()) ) );
-					}
+					processControllerFile(file);
 				}
 			}
+		}
+	}
+
+	private void processControllerFile(File file)
+			throws FileNotFoundException, InvalidData, MultipleControllerDefinitionFound, KeyNotFound, InvalidValue,
+			ExecutionIdNotUnique, ParallelServiceResponseMappingFound {
+		FileReader fileReader = new YamlFileReader(PATH_PREFIX+file.getName());
+		BrickMap map = fileReader.getMap();
+		
+		for( Map.Entry<String, Object> entry : map ) {
+			if( this.pathToControllerMap.containsKey(entry.getKey()) ) {
+				MultipleControllerDefinitionFound multipleControllerDefinitionFound = new MultipleControllerDefinitionFound(entry.getKey());
+				Logger.logException(multipleControllerDefinitionFound);
+				throw multipleControllerDefinitionFound;
+			}
+			
+			Logger.info("Trying to Create Controller Object From : "+file.getName()+" with path : "+entry.getKey());
+			this.pathToControllerMap.put(entry.getKey(), new Controller( new BrickMap(entry.getValue()) ) );
 		}
 	}
 	

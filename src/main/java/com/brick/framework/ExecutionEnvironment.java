@@ -54,6 +54,61 @@ public class ExecutionEnvironment {
 		return node;
 	}
 	
+	private JsonNode getDataFromRequestBody(String paramName) {
+		String[] paramNameParts = paramName.split("\\.");
+		JsonNode currentNode = brickRequestData.getRequestBody();
+		
+		int i = 2;
+		while( i < paramNameParts.length && null != currentNode && !currentNode.isMissingNode() ) {
+			 currentNode = currentNode.get(paramNameParts[i]);
+			i += 1;
+		}
+		
+		return currentNode;
+	}
+	
+	private JsonNode getDataFromRequestHeader(String paramName) {
+		String[] paramNameParts = paramName.split("\\.");
+		
+		ObjectNode node = this.objectMapper.createObjectNode();
+		node.put(paramNameParts[2], brickRequestData.getHeaders().get(paramNameParts[2]));
+		return node;
+	}
+	
+	private JsonNode getDataFromRequestQuery(String paramName) {
+		String[] paramNameParts = paramName.split("\\.");
+		
+		ObjectNode node = this.objectMapper.createObjectNode();
+		ArrayNode arrayNode = node.putArray(paramNameParts[2]);
+		
+		for( String queryVal : brickRequestData.getQueryParams().get(paramNameParts[2]) ) {
+			arrayNode.add(queryVal);
+		}
+		return node;
+	}
+	
+	private JsonNode getDataFromRequestPath(String paramName) {
+		String[] paramNameParts = paramName.split("\\.");
+		
+		ObjectNode node = this.objectMapper.createObjectNode();
+		node.put(paramNameParts[2], brickRequestData.getPathVariables().get(paramNameParts[2]) );
+		return node;
+	}
+	
+	private JsonNode getDataFromRequestCookie(String paramName) {
+		String[] paramNameParts = paramName.split("\\.");
+		
+		ObjectNode node = new ObjectMapper().createObjectNode();
+		
+		for( Cookie c: brickRequestData.getCookies() ) {
+			if( c.getName().equals(paramNameParts[2]) ) {
+				node.put(paramNameParts[2], c.getValue());
+				break;
+			}
+		}
+		return node;
+	}
+	
 	
 	/*
 	 * Description: Get Params for Their Names
@@ -68,61 +123,34 @@ public class ExecutionEnvironment {
 		}
 		
 		if( REQUEST.equals(paramNameParts[0]) ) {
-			
-			
-			// Request Body
-			if( BODY.equals(paramNameParts[1]) ) {
-				JsonNode currentNode = brickRequestData.getRequestBody();
-				
-				int i = 2;
-				while( i < paramNameParts.length && null != currentNode && !currentNode.isMissingNode() ) {
-					 currentNode = currentNode.get(paramNameParts[i]);
-					i += 1;
-				}
-				
-				return currentNode;
-				
-			}else if( HEADER.equals(paramNameParts[1]) ) {
-				ObjectNode node = this.objectMapper.createObjectNode();
-				node.put(paramNameParts[2], brickRequestData.getHeaders().get(paramNameParts[2]));
-				return node;
-			}else if( QUERY.equals(paramNameParts[1]) ) {
-				ObjectNode node = this.objectMapper.createObjectNode();
-				ArrayNode arrayNode = node.putArray(paramNameParts[2]);
-				
-				for( String queryVal : brickRequestData.getQueryParams().get(paramNameParts[2]) ) {
-					arrayNode.add(queryVal);
-				}
-				return node;
-			}else if( PATH.equals(paramNameParts[1]) ) {
-				ObjectNode node = this.objectMapper.createObjectNode();
-				node.put(paramNameParts[2], brickRequestData.getPathVariables().get(paramNameParts[2]) );
-				return node;
-			}else if( COOKIE.equals(paramNameParts[1]) ) {
-				ObjectNode node = new ObjectMapper().createObjectNode();
-				
-				for( Cookie c: brickRequestData.getCookies() ) {
-					if( c.getName().equals(paramNameParts[2]) ) {
-						node.put(paramNameParts[2], c.getValue());
-						break;
-					}
-				}
-				return node;
+
+			switch( paramNameParts[1] ) {
+				case BODY:
+					return getDataFromRequestBody(paramName);
+					
+				case HEADER:
+					return getDataFromRequestHeader(paramName);
+					
+				case QUERY:
+					return getDataFromRequestQuery(paramName);
+					
+				case PATH:
+					return getDataFromRequestPath(paramName);
+					
+				case COOKIE:
+					return getDataFromRequestCookie(paramName);
 			}
 			
-		}else if( serviceResponseMap.containsKey(paramNameParts[0]) ) {
+		}else if( serviceResponseMap.containsKey(paramNameParts[0]) && RESPONSE.equals(paramNameParts[1]) ) {
+			JsonNode currentNode = serviceResponseMap.get(paramNameParts[0]);
 			
-			if( RESPONSE.equals(paramNameParts[1]) ) {
-				JsonNode currentNode = serviceResponseMap.get(paramNameParts[0]);
-				
-				int i = 2;
-				while( i < paramNameParts.length && null != currentNode && !currentNode.isMissingNode() ) {
-					 currentNode = currentNode.get(paramNameParts[i]);
-					i += 1;
-				}
-				
-				return currentNode;
+			int i = 2;
+			while( i < paramNameParts.length && null != currentNode && !currentNode.isMissingNode() ) {
+				 currentNode = currentNode.get(paramNameParts[i]);
+				i += 1;
 			}
+			
+			return currentNode;
 		}
 		
 		InvalidParams invalidParams = new InvalidParams(paramName);
@@ -131,14 +159,14 @@ public class ExecutionEnvironment {
 	}
 	
 	/*
-	 * Description: Returns Validator Method Based on ValidatorId;
+	 * Description: Returns Validator Method Based on ValidatorId
 	 */
 	public Method getValidatorMethod(String validatorId) throws InvalidValidatorId {
 		return this.annotationProcessor.getValidatorMethod(validatorId);
 	}
 	
 	/*
-	 * Description: Returns Auto Initialized Object Based on  Class;
+	 * Description: Returns Auto Initialized Object Based on  Class
 	 */
 	public Object getAutoInitializedObject(Class<?> clazz) {
 		return this.annotationProcessor.getAutoInitilizedObject(clazz);

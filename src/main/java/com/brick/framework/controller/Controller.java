@@ -22,7 +22,7 @@ public class Controller {
 	
 	
 	/*
-	 * Description: Returns ControllerMethod Based on Method;
+	 * Description: Returns ControllerMethod Based on Method
 	 */
 	public ControllerMethod getControllerMethod(String method) {
 		return this.methodMap.get(method);

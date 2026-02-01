@@ -42,7 +42,7 @@ public class ControllerMethod {
 			throw executionIdNotUnique;
 		}
 		
-		this.responseList = new ArrayList();
+		this.responseList = new ArrayList<>();
 		List<Object> listOfResponseObject = brickMap.getListOfObject(ControllerConstants.RESPONSE);
 		for( Object o : listOfResponseObject ) {
 			if( o instanceof Map ) {

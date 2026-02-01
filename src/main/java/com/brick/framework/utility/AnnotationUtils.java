@@ -5,6 +5,10 @@ import java.util.Set;
 import java.lang.annotation.Annotation;
 
 public class AnnotationUtils {
+	
+	private AnnotationUtils() {
+		super();
+	}
 
 	public static boolean isAnnotationPresent(Class<?>  element, Class<? extends Annotation> targetAnnotation) {
         return isAnnotationPresent(element, targetAnnotation, new HashSet<>());

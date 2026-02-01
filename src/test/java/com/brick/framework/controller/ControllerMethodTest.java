@@ -67,20 +67,20 @@ public class ControllerMethodTest {
     	BrickMap controllerMap = fileReader.getMap();
     	
     	try(MockedStatic<ServiceFactory> mockFactory = Mockito.mockStatic(ServiceFactory.class)) {
-    		Service service_abc = mock(Service.class);
-    		Service parallel_service = mock(Service.class);
+    		Service mockServiceABC = mock(Service.class);
+    		Service mockParallelService = mock(Service.class);
 
     		
     		mockFactory.when(()->ServiceFactory.getService(any()))
-    		.thenReturn(service_abc)
-    		.thenReturn(parallel_service);
+    		.thenReturn(mockServiceABC)
+    		.thenReturn(mockParallelService);
     		
     		ControllerMethod method = new ControllerMethod(controllerMap.getBrickMap("/process").getBrickMap("post"));
     		ExecutionEnvironment env = new ExecutionEnvironment(null, null);
     		method.executeServices(env);
     		
-    		verify(service_abc,times(1)).executeService(any(ExecutionEnvironment.class));
-    		verify(parallel_service,times(1)).executeService(any(ExecutionEnvironment.class));
+    		verify(mockServiceABC,times(1)).executeService(any(ExecutionEnvironment.class));
+    		verify(mockParallelService,times(1)).executeService(any(ExecutionEnvironment.class));
     	}
 	}
 }

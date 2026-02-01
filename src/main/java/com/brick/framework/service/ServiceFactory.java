@@ -7,6 +7,11 @@ import com.brick.utilities.BrickMap;
 import com.brick.utilities.exception.KeyNotFound;
 
 public class ServiceFactory {
+	
+	private ServiceFactory() {
+		super();
+	}
+	
 	public static Service getService(BrickMap brickMap) throws InvalidValue, KeyNotFound, ParallelServiceResponseMappingFound {
 		
 		if( brickMap.contains(ControllerConstants.SERVICE_GROUP) ) {
