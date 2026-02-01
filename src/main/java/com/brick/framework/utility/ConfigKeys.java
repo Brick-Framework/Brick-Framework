@@ -1,6 +1,11 @@
 package com.brick.framework.utility;
 
 public class ConfigKeys {
+	
+	private ConfigKeys() {
+		super();
+	}
+	
 	public static final String PORT = "server.port";
 	public static final int DEFAULT_PORT = 8080;
 	

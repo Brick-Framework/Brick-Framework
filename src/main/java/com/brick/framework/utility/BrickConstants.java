@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BrickConstants {
+	
+	private BrickConstants() {
+		super();
+	}
+	
 	public static final String BANNER = "__________        .__        __    \r\n"
 			+ "\\______   \\_______|__| ____ |  | __\r\n"
 			+ " |    |  _/\\_  __ \\  |/ ___\\|  |/ /\r\n"

@@ -388,14 +388,14 @@ public class AnnotationProcessor {
    }
    
    /*
-    * Description Returns AutoInitialized Object based on class;
+    * Description Returns AutoInitialized Object based on class
     */
    public Object getAutoInitilizedObject(Class<?> clazz) {
 	   return this.autoInitializerMap.get(clazz);
    }
    
    /*
-    * Description: Returns Service Method Based on ServiceUId;
+    * Description: Returns Service Method Based on ServiceId
     */
    public Method getServiceMethod(String serviceId) throws InvalidServiceId {
 	   if( this.serviceMap.containsKey(serviceId) ) {

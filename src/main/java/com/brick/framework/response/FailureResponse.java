@@ -14,7 +14,7 @@ public abstract class FailureResponse extends Exception {
 	private String method;
 	protected String errorMessage;
 	
-	public FailureResponse(String message) {
+	protected FailureResponse(String message) {
 		super(message);
 	}
 

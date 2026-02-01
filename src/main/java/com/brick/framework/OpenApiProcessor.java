@@ -21,10 +21,10 @@ import com.brick.utilities.file.FileReader;
 
 public class OpenApiProcessor {
 	
-	private List<Path> paths;
+	private List<Path> endpointPaths;
 	
 	public OpenApiProcessor() throws FileNotFoundException, InvalidData, InvalidOpenAPISpecification, URISyntaxException, DuplicateOpenApiSpecificationFound {
-		this.paths = new ArrayList<Path>();
+		this.endpointPaths = new ArrayList<Path>();
 		
 		this.parseOpenApi();
 	}
@@ -80,14 +80,14 @@ public class OpenApiProcessor {
 				if( seenUri.contains(path.getUri()) ) {
 					throw new DuplicateOpenApiSpecificationFound(path.getUri());
 				}
-				this.paths.add(path);
+				this.endpointPaths.add(path);
 				seenUri.add(path.getUri());
 			}
 		}
 	}
 
 	public List<Path> getPaths() {
-		return paths;
+		return endpointPaths;
 	}
 	
 	

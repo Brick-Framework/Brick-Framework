@@ -16,6 +16,7 @@ import com.brick.framework.exception.InvalidServiceId;
 import com.brick.framework.exception.InvalidValidatorId;
 import com.brick.framework.exception.ParallelServiceResponseMappingFound;
 import com.brick.framework.exception.ParameterMismatch;
+import com.brick.framework.exception.ServiceExecutionException;
 import com.brick.framework.response.ServiceValidationFailure;
 import com.brick.framework.utility.ControllerConstants;
 import com.brick.logger.Logger;
@@ -95,7 +96,7 @@ public class ServiceGroup extends Service{
 							| InvalidValidatorId | ParameterMismatch | InvalidParams | InvalidServiceId
 							| ParallelServiceResponseMappingFound e) {
 						Logger.logException(e);
-						throw new RuntimeException(e);
+						throw new ServiceExecutionException(e);
 					}
 				};
 				futures.add(threadManager.submitTask(serviceRunnable));
